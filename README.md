@@ -104,7 +104,7 @@ Sample content:
 	]
 
 
-Allows filtering comments by associated movie, by passing its ID.
+Allows filtering comments by associated movie, by passing its ID.  
 **URL:** /comments?movie_id={integer}
 
 ### POST /comments:
@@ -129,13 +129,14 @@ Sample Content:
 **Error Response:**  
     
 Status code: 422 Unprocessable Entity  
-Content:  
-{
-    "Info": [
-        "The movie id field is required.",
-        "The description field is required."
-    ]
-}
+Content: 
+
+	{
+	    "Info": [
+		"The movie id field is required.",
+		"The description field is required."
+	    ]
+	}
 
 
 Status code: 404 Not found  
@@ -154,10 +155,10 @@ Status code: 200
 Sample Content:  
 
 	[
-    {
-        "movie_id": 3,
-        "total_comments": 2,
-        "rank": 1
-    },
+	    {
+		"movie_id": 3,
+		"total_comments": 2,
+		"rank": 1
+	    },
 	...
 	]
