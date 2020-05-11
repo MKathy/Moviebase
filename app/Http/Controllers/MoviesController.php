@@ -44,7 +44,7 @@ class MoviesController extends Controller
         ]);
         
         if ($validator->fails()) {
-            return response(['Info' => $validator->errors()->first()],422);
+            return response(['Info' => $validator->errors()->first()], 422);
         }
         
         if(Movie::where('title', 'LIKE','%' . request('title') . '%')->count())
