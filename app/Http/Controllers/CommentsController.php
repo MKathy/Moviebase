@@ -32,7 +32,7 @@ class CommentsController extends Controller
         {
             $errors = $validator->errors();
 
-            return response($errors, 422);
+            return response(['Info' => $errors->all], 422);
         }
 
         if(!DB::table('movies')->where('id', '=', request('movie_id'))->count())

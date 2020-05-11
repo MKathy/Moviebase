@@ -4,10 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Movie;
 use GuzzleHttp\Client;
-use Illuminate\Http\Request;
-// use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Validator;
-use Exception;
 
 class MoviesController extends Controller
 {
@@ -25,29 +22,21 @@ class MoviesController extends Controller
             return Movie::where('id', request('id'))->get();
         }
         
-        if(request()->has('title'))
+        foreach (['title', 'genre', 'writer'] as $key)
         {
-            return Movie::where('title', 'LIKE','%' . request('title') . '%')->get();
-        }
-        
-        if(request()->has('genre'))
-        {
-            return Movie::where('genre', 'LIKE','%' . request('genre') . '%')->get();
+            if(request()->has($key))
+            {
+                return Movie::where($key, 'LIKE','%' . request($key) . '%')->get();
+            }
         }
         
         if(request()->has('sortBy'))
         {
             return Movie::all()->sortBy(request('sortBy'))->values();
-            
         }
         return Movie::all();
     }
-    
-    public function filterBy() 
-    {
-        return Movie::all()->pluck(request()->filterBy);
-    }
-    
+        
     public function store() {
        
         $validator = Validator::make(request()->all(), [
@@ -55,12 +44,12 @@ class MoviesController extends Controller
         ]);
         
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response(['Info' => $validator->errors()->first()],422);
         }
         
         if(Movie::where('title', 'LIKE','%' . request('title') . '%')->count())
         {
-            return response()->json(['Info' => "The movie already exists in a database"], 404);
+            return response()->json(['Info' => "The movie already exists in a database!"], 409);
         }
         
         $title = request('title');

@@ -12,13 +12,13 @@ class TopMoviesController extends Controller
     {
         $validator = Validator::make(request()->all(), [
 
-            'date_from' => 'required',
-            'date_to' => 'required'
+            'date_from' => 'sometimes',
+            'date_to' => 'sometimes'
         ]);
         
         if ($validator->fails())
         {
-            return $validator->errors();
+            return response(['Info' => $validator->errors()->all()], 422)   ;
         }
         
         $data = DB::table('comments')
