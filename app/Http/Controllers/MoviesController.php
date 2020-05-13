@@ -15,7 +15,7 @@ class MoviesController extends Controller
         $this->serviceURL = "http://www.omdbapi.com/?apikey=" . config('services.omdbapi.key');
     }
     
-    public function index() 
+    public function index()
     {
         if(request()->has('id'))
         {
@@ -47,21 +47,21 @@ class MoviesController extends Controller
             return response(['Info' => $validator->errors()->first()], 422);
         }
         
-        if(Movie::where('title', 'LIKE','%' . request('title') . '%')->count())
+        if(Movie::where('title', request('title'))->count())
         {
-            return response()->json(['Info' => "The movie already exists in a database!"], 409);
+            return response(['Info' => "The movie already exists in a database!"], 409);
         }
         
         $title = request('title');
         $client = new Client();
         
-            $response = $client->request('GET', $this->serviceURL . "&t=" . $title);
+        $response = $client->request('GET', $this->serviceURL . "&t=" . $title);
         
         $data = json_decode($response->getBody()->getContents(), true);
         
         if($data['Response'] == "False")
         {
-            return response()->json(['Info' => $data['Error']], 404);
+            return response(['Info' => $data['Error']], 404);
         }
         
         return Movie::create([
