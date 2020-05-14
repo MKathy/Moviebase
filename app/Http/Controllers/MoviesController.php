@@ -39,17 +39,17 @@ class MoviesController extends Controller
         
     public function store() {
        
-        $validator = Validator::make(request()->all(), [
+        $validator = Validator::make(request()->only('title'), [
             'title' => 'required|min:3',
         ]);
         
         if ($validator->fails()) {
-            return response(['Info' => $validator->errors()->first()], 422);
+            return response(['Info' => $validator->errors()->all()], 422);
         }
         
         if(Movie::where('title', 'LIKE','%' . request('title') . '%')->count())
         {
-            return response()->json(['Info' => "The movie already exists in a database!"], 409);
+            return response(['Info' => "The movie already exists in a database!"], 409);
         }
         
         $title = request('title');
@@ -61,7 +61,7 @@ class MoviesController extends Controller
         
         if($data['Response'] == "False")
         {
-            return response()->json(['Info' => $data['Error']], 404);
+            return response(['Info' => $data['Error']], 404);
         }
         
         return Movie::create([

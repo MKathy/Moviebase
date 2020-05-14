@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use App\Movie;
 
 class CommentsController extends Controller
 {
@@ -22,8 +20,7 @@ class CommentsController extends Controller
 
     public function store()
     {
-        $validator = Validator::make(request()->all(), [
-            
+        $validator = Validator::make(request()->only(['movie_id', 'description']), [
             'movie_id' => 'required',
             'description' => 'required'
         ]);

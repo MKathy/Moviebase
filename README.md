@@ -26,17 +26,19 @@ Returns list of all movies already present in application database.
 Status code: 200  
 Sample content:
 
-	{
-	    "title": "Some",
-	    "genre": "Action, Crime, Mystery",
-	    "writer": "Eun-Jeong Kim, Eun-shil Kim",
-	    "updated_at": "2020-05-11T08:08:35.000000Z",
-	    "created_at": "2020-05-11T08:08:35.000000Z",
-	    "id": 8
-	},
-	{
-	 ...
-
+	[
+		{
+		    "title": "Some",
+		    "genre": "Action, Crime, Mystery",
+		    "writer": "Eun-Jeong Kim, Eun-shil Kim",
+		    "updated_at": "2020-05-11T08:08:35.000000Z",
+		    "created_at": "2020-05-11T08:08:35.000000Z",
+		    "id": 8
+		},
+		{
+		 ...
+	]
+	
 Allows filtering movies by passing id, title, genre, writer.  
 **URL:**  
 /movies?id={integer}  
@@ -56,22 +58,25 @@ Adds new full movie object to application database (fetched from [http://www.omd
 Status code: 200  
 Sample Content:  
 
-	[
-		{
-		    "title": "Some",
-		    "genre": "Action, Crime, Mystery",
-		    "writer": "Eun-Jeong Kim, Eun-shil Kim",
-		    "updated_at": "2020-05-11T08:08:35.000000Z",
-		    "created_at": "2020-05-11T08:08:35.000000Z",
-		    "id": 8
-		}
-	]
+	{
+	    "title": "Some",
+	    "genre": "Action, Crime, Mystery",
+	    "writer": "Eun-Jeong Kim, Eun-shil Kim",
+	    "updated_at": "2020-05-11T08:08:35.000000Z",
+	    "created_at": "2020-05-11T08:08:35.000000Z",
+	    "id": 8
+	}
+		
 **Error Response:**
 
 Status code: 422 Unprocessable Entity
 Content:  
 
-	{ "Info": "The title field is required." }
+	{
+	    "Info": [
+	        "The title field is required."
+	    ]
+	}
 
 Status code: 404 Not found
 Content:  

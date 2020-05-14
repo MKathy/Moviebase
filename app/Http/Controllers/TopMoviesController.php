@@ -9,18 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class TopMoviesController extends Controller
 {
     public function index ()
-    {
-        $validator = Validator::make(request()->all(), [
-
-            'date_from' => 'sometimes',
-            'date_to' => 'sometimes'
-        ]);
-        
-        if ($validator->fails())
-        {
-            return response(['Info' => $validator->errors()->all()], 422)   ;
-        }
-        
+    {        
         $data = DB::table('comments')
         ->select('movie_id', DB::raw('count(*) as total_comments'))
         ->when(request()->has('date_from') && request()->has('date_to'), function ($q) {
