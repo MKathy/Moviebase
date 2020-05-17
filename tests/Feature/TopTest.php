@@ -14,36 +14,22 @@ class TopTest extends TestCase
     /** @test */
     public function top_movies_can_be_returned()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
+        $movie1 = $this->createMovie('Rocky');
+        $movie2 = $this->createMovie('Smith');
         
-        $movie1 = Movie::first();
-        $movie2 = Movie::orderBy('id', 'DESC')->first();
-        
-        $this->post('/comments', [
-            'movie_id' => $movie1->id,
-            'description' => "Great movie!"
-        ]);
-        
-        $this->post('/comments', [
-            'movie_id' => $movie2->id,
-            'description' => "Really good!"
-        ]);
-        
-        $this->post('/comments', [
-            'movie_id' => $movie2->id,
-            'description' => "Funny!"
-        ]);
-        
-        $data = $this->get('/top')
+        $this->createComment($movie1->id, 'Great movie!');
+        $this->createComment($movie2->id, 'Really good!');
+        $this->createComment($movie2->id, 'Funny!');
+            
+            $data = $this->get('/top')
             ->assertJsonCount(2)
             ->decodeResponseJson();
         
         $this->assertEquals($movie2->id, $data[0]['movie_id']);
+        $this->assertEquals(2, $data[0]['total_comments']);
+        $this->assertEquals(1, $data[1]['total_comments']);
+        $this->assertEquals(1, $data[0]['rank']);
+        $this->assertEquals(2, $data[1]['rank']);
         $this->assertArrayHasKey('movie_id', $data[0]);
         $this->assertArrayHasKey('total_comments', $data[0]);
         $this->assertArrayHasKey('rank', $data[0]);
@@ -52,31 +38,18 @@ class TopTest extends TestCase
     /** @test */
     public function top_movies_can_be_specified_in_date_range()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
+        $movie1 = $this->createMovie('Rocky');
+        $movie2 = $this->createMovie('Smith');
         
-        $movie1 = Movie::first();
-        $movie2 = Movie::orderBy('id', 'DESC')->first();
-        
-        $this->post('/comments', [
-            'movie_id' => $movie1->id,
-            'description' => "Great movie!"
-        ]);
+        $this->createComment($movie1->id, 'Great movie!');
+        $this->createComment($movie2->id, 'Really good!');
         
         Comment::create([
             'movie_id' => $movie2->id,
-            'description' => "Really good!",
+            'description' => "Funny!",
             'created_at' => now()->subDays(5)
             ]);
         
-        $this->post('/comments', [
-            'movie_id' => $movie2->id,
-            'description' => "Funny!"
-        ]);
         $this->assertCount(3, Comment::all());
         
         $from = now()->subDay(1);
@@ -88,8 +61,26 @@ class TopTest extends TestCase
         ->decodeResponseJson();
         
         $this->assertEquals($movie1->id, $data[0]['movie_id']);
-        $this->assertArrayHasKey('movie_id', $data[0]);
-        $this->assertArrayHasKey('total_comments', $data[0]);
-        $this->assertArrayHasKey('rank', $data[0]);
+        $this->assertEquals(1, $data[0]['rank']);
+        $this->assertEquals(1, $data[1]['rank']);
+    }
+    
+    private function createMovie($title = [])
+    {
+        $this->post('/movies', [
+            'title' => $title
+        ]);
+        
+        return Movie::orderBy('id', 'DESC')->first();
+    }
+    
+    private function createComment($movieId, $content)
+    {
+        $this->post('/comments', [
+           'movie_id' => $movieId,
+            'description' => $content
+        ]);
+        
+        return Comment::orderBy('id', 'DESC');
     }
 }

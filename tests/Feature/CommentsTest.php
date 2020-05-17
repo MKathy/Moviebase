@@ -13,12 +13,8 @@ class CommentsTest extends TestCase
    
     /** @test */
     public function comment_can_be_added_to_movie()
-    {
-        $response = $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        
-        $movie = Movie::first();
+    {        
+        $movie = $this->createMovie('Rocky');
         
         $this->post('/comments', [
             'movie_id' => $movie->id,
@@ -44,11 +40,7 @@ class CommentsTest extends TestCase
     /** @test */
     public function description_is_required()
     {
-        $response = $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        
-        $movie = Movie::first();
+        $movie = $this->createMovie('Rocky');
         
         $this->post('/comments', [
             'movie_id' => $movie->id,
@@ -72,20 +64,10 @@ class CommentsTest extends TestCase
     /** @test */
     public function all_comments_can_be_returned()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        $movie = Movie::first();
+        $movie = $this->createMovie('Rocky');
         
-        $this->post('/comments', [
-            'movie_id' => $movie->id,
-            'description' => "Great movie!"
-        ])->assertStatus(201);
-        
-        $this->post('/comments', [
-            'movie_id' => $movie->id,
-            'description' => "Really good!"
-        ])->assertStatus(201);
+        $this->createComment($movie->id, 'Great movie!');
+        $this->createComment($movie->id, 'Really good!');
         
         $this->assertCount(2, Comment::all());
         $this->assertCount(1, Movie::all());
@@ -93,32 +75,18 @@ class CommentsTest extends TestCase
         $this->get('/comments')
             ->assertOk()
             ->assertJsonFragment(['id'=>Comment::first()->id])
-            ->assertJsonFragment(['id'=>Comment::latest()->first()->id])
+            ->assertJsonFragment(['id'=>Comment::orderBy('id', 'DESC')->first()->id])
             ->assertJsonFragment(['movie_id'=>$movie->id]);
     }
     
     /** @test */
     public function comments_can_be_filtrated_by_movie_id()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
-
-        $movie1 = Movie::first();
-        $movie2 = Movie::orderBy('id', 'DESC')->first();
+        $movie1 = $this->createMovie('Rocky');
+        $movie2 = $this->createMovie('Smith');
         
-        $this->post('/comments', [
-            'movie_id' => $movie1->id,
-            'description' => "Great movie!"
-        ])->assertStatus(201);
-        
-        $this->post('/comments', [
-            'movie_id' => $movie2->id,
-            'description' => "Really good!"
-            ])->assertStatus(201);
+        $this->createComment($movie1->id, 'Great movie!');
+        $this->createComment($movie2->id, 'Really good!');
         
         $this->assertCount(2, Comment::all());
         
@@ -126,5 +94,24 @@ class CommentsTest extends TestCase
             ->assertJsonMissing(['movie_id'=>$movie2->id])
             ->assertJsonFragment(['movie_id'=>$movie1->id])
             ->assertJsonCount(1);
+    }
+    
+    private function createMovie($title = [])
+    {
+        $this->post('/movies', [
+            'title' => $title
+        ]);
+        
+        return Movie::orderBy('id', 'DESC')->first();
+    }
+    
+    private function createComment($movieId, $content)
+    {
+        $this->post('/comments', [
+            'movie_id' => $movieId,
+            'description' => $content
+        ]);
+        
+        return Comment::orderBy('id', 'DESC');
     }
 }

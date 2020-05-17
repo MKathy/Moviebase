@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Movie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -21,7 +22,6 @@ class CommentsController extends Controller
     public function store()
     {
         $validator = Validator::make(request()->all(), [
-            
             'movie_id' => 'required',
             'description' => 'required'
         ]);
@@ -33,9 +33,9 @@ class CommentsController extends Controller
             return response(['Info' => $errors->all()], 422);
         }
 
-        if(!DB::table('movies')->where('id', '=', request('movie_id'))->count())
+        if(!Movie::where('id', '=', request('movie_id'))->count())
         {
-            return response()->json(['Info' => 'Movie doesn\'t exist.'], 404);
+            return response(['Info' => 'Movie doesn\'t exist.'], 404);
         }
         
         return Comment::create(request(['description', 'movie_id']));

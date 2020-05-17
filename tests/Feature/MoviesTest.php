@@ -13,80 +13,56 @@ class MoviesTest extends TestCase
     /** @test */
     public function new_movie_can_be_added()
     {
-        $response = $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        
+        $this->createMovie('Rocky');
         $this->assertCount(1, Movie::all());
         $this->assertEquals('Rocky', Movie::first()->title);
-        $response->assertStatus(201);
     }
     
     /** @test */
     public function title_is_required()
     {
-        $response = $this->post('/movies', [
-            'title' => ''
-        ]);
+       $this->post('/movies')
+            ->assertStatus(422);
         
         $this->assertCount(0, Movie::all());
-        $response->assertStatus(422);
     }
     
     /** @test */
     public function min_3_chars_required()
     {
-        $response = $this->post('/movies', [
-            'title' => 'a'
-        ]);
-        
+        $this->createMovie('a', 422);
+
         $this->assertCount(0, Movie::all());
-        $response->assertStatus(422);
     }
     
     /** @test */
     public function movie_needs_to_exist_in_omdb()
     {
-        $response = $this->post('/movies', [
-            'title' => 'ThisIsTest'
-        ]);
+        $this->createMovie('ThisIsTest', 404);
         
         $this->assertCount(0, Movie::all());
-        $response->assertStatus(404);
     }
     
     /** @test */
     public function movie_can_not_be_duplicated()
     {
-        $response = $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
+        $this->createMovie('Rocky');
         
         $this->assertCount(1, Movie::all());
-        $response->assertStatus(201);
         
-        $response = $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
+        $this->createMovie('Rocky', 409);
         
         $this->assertCount(1, Movie::all());
-        $response->assertStatus(409);
     }
     
     /** @test */
     public function all_movies_can_be_returned()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
+        $this->createMovie('Rocky');
+        $this->createMovie('Mr. & Mrs. Smith');
+        $this->createMovie('Smith');
         
-        $this->post('/movies', [
-            'title' => 'Mr. & Mrs. Smith'
-        ]);
-        
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
+        $this->assertCount(3, Movie::all());
         
         $this->get('/movies')
             ->assertOk()
@@ -94,22 +70,14 @@ class MoviesTest extends TestCase
             ->assertJsonFragment(['title'=>'Rocky'])
             ->assertJsonFragment(['title'=>'Mr. & Mrs. Smith'])
             ->assertJsonFragment(['title'=>'Smith']);
-        
-        $this->assertCount(3, Movie::all());
     }
     
     /** @test */
     public function movie_can_be_finded_by_passing_id()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
+        $movie = $this->createMovie('Rocky');
+        $this->createMovie('Smith');
         
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
-        
-        $movie = Movie::first();
         $this->assertCount(2, Movie::all());
         
         $this->get('/movies/?id=' . $movie->id)
@@ -121,14 +89,8 @@ class MoviesTest extends TestCase
     /** @test */
     public function movie_can_be_filtered_by_passing_title()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
-        
-        $this->assertCount(2, Movie::all());
+        $this->createMovie('Rocky');
+        $this->createMovie('Smith');
         
         $this->get('/movies/?title=Rocky')
             ->assertOk()->assertJsonFragment(['title'=>'Rocky'])
@@ -138,14 +100,8 @@ class MoviesTest extends TestCase
     /** @test */
     public function movie_can_be_filtered_by_passing_genre()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
-        
-        $this->assertCount(2, Movie::all());
+        $this->createMovie('Rocky');
+        $this->createMovie('Smith');
         
         $this->get('/movies/?genre=Sport')
             ->assertOk()
@@ -156,18 +112,21 @@ class MoviesTest extends TestCase
     /** @test */
     public function movie_can_be_filtered_by_passing_writer()
     {
-        $this->post('/movies', [
-            'title' => 'Rocky'
-        ]);
-        $this->post('/movies', [
-            'title' => 'Smith'
-        ]);
-        
-        $this->assertCount(2, Movie::all());
+        $this->createMovie('Rocky');
+        $this->createMovie('Smith');
         
         $this->get('/movies/?writer=Stallone')
         ->assertOk()
         ->assertJsonFragment(['title'=>'Rocky'])
         ->assertJsonMissingExact(['title'=>'Smith']);
+    }
+    
+    private function createMovie($title, $statusCode=201)
+    {
+        $this->post('/movies', [
+            'title' => $title
+        ])->assertStatus($statusCode);
+        
+        return Movie::orderBy('id', 'DESC')->first();
     }
 }
