@@ -112,6 +112,6 @@ class CommentsTest extends TestCase
             'description' => $content
         ]);
         
-        return Comment::orderBy('id', 'DESC');
+        return Comment::orderBy('id', 'DESC')->first();
     }
 }

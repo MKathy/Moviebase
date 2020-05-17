@@ -21,7 +21,7 @@ class TopTest extends TestCase
         $this->createComment($movie2->id, 'Really good!');
         $this->createComment($movie2->id, 'Funny!');
             
-            $data = $this->get('/top')
+        $data = $this->get('/top')
             ->assertJsonCount(2)
             ->decodeResponseJson();
         
@@ -81,6 +81,6 @@ class TopTest extends TestCase
             'description' => $content
         ]);
         
-        return Comment::orderBy('id', 'DESC');
+        return Comment::orderBy('id', 'DESC')->first();
     }
 }
