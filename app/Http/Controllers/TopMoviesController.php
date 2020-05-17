@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class TopMoviesController extends Controller
 {
     public function index ()
-    {        
+    {
         $data = DB::table('comments')
         ->select('movie_id', DB::raw('count(*) as total_comments'))
         ->when(request()->has('date_from') && request()->has('date_to'), function ($q) {
@@ -36,7 +35,7 @@ class TopMoviesController extends Controller
             }
             $data[$i]->rank = $index;
         }
-    
+
         return $data;
     }
 }

@@ -7,9 +7,10 @@ use App\Movie;
 
 class Comment extends Model
 {
-    protected $fillable = ['movie_id', 'description'];
+    protected $guarded = [];
     
-    public function movie() {
+    public function movie() 
+    {
         return $this->belongsTo(Movie::class);
     }
 }

@@ -13,7 +13,7 @@
 9. Migrate the database `php artisan migrate`
 
 ### Notes
-You need to generate your apikey at web service: [http://www.omdbapi.com](http://www.omdbapi.com)
+You need to generate your apikey at web service: [http://www.omdbapi.com](http://www.omdbapi.com).
 
 ## Endpoints
 
@@ -50,7 +50,7 @@ Allows sorting movies by id, title, genre, writer.
 **URL:** /movies?sortBy={key}
 
 ### POST /movies:
-Adds new full movie object to application database (fetched from [http://www.omdbapi.com/](http://www.omdbapi.com/) based on passed title) and returns it
+Adds new full movie object to application database (fetched from [http://www.omdbapi.com/](http://www.omdbapi.com/) based on passed title) and returns it.
 
 **Content-Type:** application/json  
 **Required:** title  
