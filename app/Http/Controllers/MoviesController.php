@@ -39,12 +39,12 @@ class MoviesController extends Controller
         
     public function store() {
        
-        $validator = Validator::make(request()->all(), [
+        $validator = Validator::make(request()->only('title'), [
             'title' => 'required|min:3',
         ]);
         
         if ($validator->fails()) {
-            return response(['Info' => $validator->errors()->first()], 422);
+            return response(['Info' => $validator->errors()->all()], 422);
         }
         
         if(Movie::where('title', request('title'))->count())
